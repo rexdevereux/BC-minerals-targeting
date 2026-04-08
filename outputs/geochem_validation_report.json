@@ -1,0 +1,67 @@
+{
+  "run_at": "2026-04-07T21:51:36.829355+00:00",
+  "input_rows": 50988,
+  "pipeline_ok": true,
+  "checks": [
+    {
+      "check": "minimum row count",
+      "level": "critical",
+      "status": "PASS",
+      "detail": "50,988 rows"
+    },
+    {
+      "check": "no duplicate sample IDs",
+      "level": "critical",
+      "status": "PASS",
+      "detail": "0 duplicates found"
+    },
+    {
+      "check": "coordinates within BC bounds",
+      "level": "critical",
+      "status": "PASS",
+      "detail": "lat range 48.496\u201359.999, lon range -138.286\u2013-114.093"
+    },
+    {
+      "check": "no negative element values",
+      "level": "critical",
+      "status": "PASS",
+      "detail": "all BDL substitutions applied correctly"
+    },
+    {
+      "check": "CRS is EPSG:4326 (WGS84)",
+      "level": "critical",
+      "status": "PASS",
+      "detail": "{\"$schema\": \"https://proj.org/schemas/v0.7/projjson.schema.json\", \"type\": \"GeographicCRS\", \"name\": \"WGS 84\", \"datum_ensemble\": {\"name\": \"World Geodetic System 1984 ensemble\", \"members\": [{\"name\": \"World Geodetic System 1984 (Transit)\"}, {\"name\": \"World Geodetic System 1984 (G730)\"}, {\"name\": \"World Geodetic System 1984 (G873)\"}, {\"name\": \"World Geodetic System 1984 (G1150)\"}, {\"name\": \"World Geodetic System 1984 (G1674)\"}, {\"name\": \"World Geodetic System 1984 (G1762)\"}, {\"name\": \"World Geodetic System 1984 (G2139)\"}, {\"name\": \"World Geodetic System 1984 (G2296)\"}], \"ellipsoid\": {\"name\": \"WGS 84\", \"semi_major_axis\": 6378137, \"inverse_flattening\": 298.257223563}, \"accuracy\": \"2.0\", \"id\": {\"authority\": \"EPSG\", \"code\": 6326}}, \"coordinate_system\": {\"subtype\": \"ellipsoidal\", \"axis\": [{\"name\": \"Geodetic latitude\", \"abbreviation\": \"Lat\", \"direction\": \"north\", \"unit\": \"degree\"}, {\"name\": \"Geodetic longitude\", \"abbreviation\": \"Lon\", \"direction\": \"east\", \"unit\": \"degree\"}]}, \"scope\": \"Horizontal component of 3D system.\", \"area\": \"World.\", \"bbox\": {\"south_latitude\": -90, \"west_longitude\": -180, \"north_latitude\": 90, \"east_longitude\": 180}, \"id\": {\"authority\": \"EPSG\", \"code\": 4326}}"
+    },
+    {
+      "check": "geometry non-null and valid",
+      "level": "critical",
+      "status": "PASS",
+      "detail": "0 null, 0 invalid geometries"
+    },
+    {
+      "check": "core element null rates < 25%",
+      "level": "warning",
+      "status": "PASS",
+      "detail": "all within threshold"
+    },
+    {
+      "check": "element values within plausible range",
+      "level": "warning",
+      "status": "PASS",
+      "detail": "all within expected range"
+    },
+    {
+      "check": "year range sensible",
+      "level": "warning",
+      "status": "PASS",
+      "detail": "1976\u20132019"
+    },
+    {
+      "check": "audit columns present",
+      "level": "warning",
+      "status": "PASS",
+      "detail": "all present"
+    }
+  ]
+}
