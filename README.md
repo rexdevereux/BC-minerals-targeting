@@ -1,6 +1,6 @@
 # BC Critical Minerals Drill Targeting Pipeline
 
-An end-to-end geoscience data engineering and exploration targeting pipeline built on real provincial geochemical data from British Columbia. The pipeline ingests 50,990 stream sediment samples from the BC Regional Geochemical Survey (RGS 2020), transforms them through six stages into ML-ready features, and produces ranked drill targets for two deposit types: porphyry Cu-Au-Mo systems and battery metals (Li-Co-Ni).
+An end-to-end geoscience data engineering and exploration targeting pipeline built on provincial geochemical data from British Columbia. The pipeline ingests 50,990 stream sediment samples from the BC Regional Geochemical Survey (RGS 2020), transforms them through six stages into ML-ready features, and produces ranked drill targets for two deposit types: porphyry Cu-Au-Mo systems and battery metals (Li-Co-Ni).
 
 **[Live Demo →](https://your-app.streamlit.app)** *(coming soon)*
 
@@ -24,7 +24,7 @@ An end-to-end geoscience data engineering and exploration targeting pipeline bui
 
 ## Pipeline Architecture
 
-The pipeline follows a linear 6-stage architecture. Each stage reads from the previous stage's GeoParquet output and writes its own — every stage is independently testable and re-runnable.
+The pipeline follows a linear 6-stage architecture. Each stage reads from the previous stage's GeoParquet output and writes its own. Each stage is independently testable and re-runnable.
 
 ```
 BC RGS 2020 Excel
@@ -65,7 +65,7 @@ All datasets are open government data released under the [BC Open Government Lic
 
 **Below-detection-limit handling** — negative values in the raw data indicate the element was measured below the instrument detection limit. Industry standard substitution: `abs(value) / 2`. Preserves the information that the element was present at a low level without introducing bias.
 
-**Geology stratification** — local z-scores are computed within each `rock_class` (from BCGS bedrock geology) rather than crude longitude bands. This removes lithological background variation — 100 ppm Cu in sedimentary rock is more anomalous than 100 ppm Cu in intrusive rock.
+**Geology stratification** — local z-scores are computed within each `rock_class` (from BCGS bedrock geology). This removes lithological background variation. Ex 100 ppm Cu in sedimentary rock is more anomalous than 100 ppm Cu in intrusive rock.
 
 **Spatial covariates** — distance to nearest fault and distance to nearest terrane boundary computed in BC Albers (EPSG:3005) for accurate metre-scale distances. Porphyry Cu-Au deposits in BC cluster along terrane boundaries (Stikinia/Quesnellia boundary hosts Highland Valley, Mount Polley, Gibraltar).
 
