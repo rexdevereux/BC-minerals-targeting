@@ -2,7 +2,6 @@
 
 An end-to-end geoscience data engineering and exploration targeting pipeline built on provincial geochemical data from British Columbia. The pipeline ingests 50,990 stream sediment samples from the BC Regional Geochemical Survey (RGS 2020), transforms them through six stages into ML-ready features, and produces ranked drill targets for two deposit types: porphyry Cu-Au-Mo systems and battery metals (Li-Co-Ni).
 
-**[Live Demo →](https://your-app.streamlit.app)** *(coming soon)*
 
 ---
 
