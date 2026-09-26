@@ -237,4 +237,40 @@ with open(meta_path, "w") as f:
     yaml.dump(metadata, f, default_flow_style=False)
 logger.info(f"metadata saved to {meta_path}")
 
+# --- export drill targets as geojson ---
+logger.info("exporting drill targets as geojson...")
+
+porphyry_targets = gdf[gdf["target_porphyry"]].copy()
+battery_targets  = gdf[gdf["target_battery"]].copy()
+
+# keep only the most useful columns for qgis inspection
+export_cols_porphyry = [
+    "sample_id", "latitude", "longitude",
+    "rock_class", "rock_type", "terrane", "terrane_name", "era",
+    "copper_ppm", "gold_ppm", "molybdenum_ppm", "arsenic_ppm", "cobalt_ppm",
+    "score_porphyry", "rank_porphyry",
+    "dist_to_fault_km", "dist_to_terrane_boundary_km",
+    "grid_id", "year", "geometry"
+]
+export_cols_battery = [
+    "sample_id", "latitude", "longitude",
+    "rock_class", "rock_type", "terrane", "terrane_name", "era",
+    "lithium_ppm", "cobalt_ppm", "nickel_ppm",
+    "score_battery", "rank_battery",
+    "dist_to_fault_km", "dist_to_terrane_boundary_km",
+    "grid_id", "year", "geometry"
+]
+
+export_cols_porphyry = [c for c in export_cols_porphyry if c in porphyry_targets.columns]
+export_cols_battery  = [c for c in export_cols_battery  if c in battery_targets.columns]
+
+porphyry_out = Path("outputs") / "targets_porphyry.geojson"
+battery_out  = Path("outputs") / "targets_battery.geojson"
+
+porphyry_targets[export_cols_porphyry].to_file(porphyry_out, driver="GeoJSON")
+battery_targets[export_cols_battery].to_file(battery_out, driver="GeoJSON")
+
+logger.info(f"porphyry targets: {len(porphyry_targets):,} features → {porphyry_out}")
+logger.info(f"battery targets:  {len(battery_targets):,} features → {battery_out}")
+
 print(f"\n--- done --- geochem_05_features.parquet ready")

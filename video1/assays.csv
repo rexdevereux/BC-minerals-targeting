@@ -1,0 +1,22 @@
+HoleID,From_m,To_m,Length_m,Au_gpt,Cu_pct,Lithology
+DDH-001,0.0,2.0,2.0,0.02,0.01,Overburden
+DDH-001,2.0,5.0,3.0,0.05,0.03,Weathered tonalite
+DDH-001,5.0,12.5,7.5,0.18,0.05,Tonalite
+DDH-001,12.5,18.0,5.5,1.24,0.08,Sheared tonalite
+DDH-001,18.0,22.5,4.5,4.78,0.12,Quartz vein zone
+DDH-001,22.5,28.0,5.5,6.32,0.15,Quartz vein zone
+DDH-001,28.0,33.5,5.5,2.41,0.09,Sheared tonalite
+DDH-001,33.5,40.0,6.5,0.31,0.04,Tonalite
+DDH-001,40.0,50.0,10.0,0.08,0.02,Tonalite
+DDH-002,0.0,3.0,3.0,0.01,0.01,Overburden
+DDH-002,3.0,10.0,7.0,0.04,0.02,Diorite
+DDH-002,10.0,18.5,8.5,0.15,0.34,Altered diorite
+DDH-002,18.5,24.0,5.5,0.42,0.87,Chalcopyrite zone
+DDH-002,24.0,31.0,7.0,0.58,1.12,Chalcopyrite zone
+DDH-002,31.0,38.5,7.5,0.21,0.45,Altered diorite
+DDH-002,38.5,45.0,6.5,0.06,0.03,Diorite
+DDH-003,0.0,2.5,2.5,0.01,0.01,Overburden
+DDH-003,2.5,12.0,9.5,0.03,0.02,Granodiorite
+DDH-003,12.0,22.0,10.0,0.05,0.02,Granodiorite
+DDH-003,22.0,35.0,13.0,0.04,0.03,Granodiorite
+DDH-003,35.0,45.0,10.0,0.02,0.01,Granodiorite
