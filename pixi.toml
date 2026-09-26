@@ -25,6 +25,8 @@ planetary-computer = ">=1.0.0,<2"
 odc-stac = ">=0.5.2,<0.6"
 rioxarray = ">=0.22.0,<0.23"
 rich = ">=15.0.0,<16"
+plotnine = ">=0.15.8,<0.16"
+font-ttf-roboto = ">=3.16,<4"
 
 [pypi-dependencies]
 mlflow = ">=1.27.0, <2"
