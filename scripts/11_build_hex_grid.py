@@ -1,5 +1,5 @@
 """
-12_build_hex_grid.py
+11_build_hex_grid.py
 
 Builds the province-wide modelling table on an H3 hexagon grid: every covariate
 layer is summarised per hex, with neighbour-ring context and porphyry Cu-Au
@@ -27,7 +27,7 @@ Columns per hex:
                           NaN otherwise — mineralised but not porphyry, can't be background
 
 Usage:
-    pixi run python scripts/12_build_hex_grid.py
+    pixi run python scripts/11_build_hex_grid.py
 
 Outputs:
     data/hex_grid.parquet     hex polygons (EPSG:3005) + all columns above

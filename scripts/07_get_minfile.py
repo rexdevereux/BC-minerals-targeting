@@ -3,7 +3,7 @@
 
 Fetches every BC MINFILE mineral occurrence province-wide from the DataBC WFS.
 Kept raw and unfiltered — deposit-type / commodity labelling happens
-downstream (11_build_training_table.py) so other commodity models can
+downstream (11_build_hex_grid.py) so other commodity models can
 derive their own labels from the same file.
 
 Usage:

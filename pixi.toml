@@ -16,9 +16,9 @@ minfile = { cmd = "python scripts/07_get_minfile.py", inputs = ["scripts/07_get_
 terrain = { cmd = "python scripts/08_get_terrain_inventory.py", inputs = ["scripts/08_get_terrain_inventory.py"], outputs = ["data/terrain_inventory_bc_raw.parquet"] }
 dem = { cmd = "python scripts/09_get_dem_geomorphometry.py", inputs = ["scripts/09_get_dem_geomorphometry.py", "data/BC_boundary.gpkg"], outputs = ["outputs/geomorphometry/dem.tif", "outputs/geomorphometry/tpi.tif", "outputs/geomorphometry/landforms.tif"] }
 geophysics = { cmd = "python scripts/10_prep_geophysics.py", inputs = ["scripts/10_prep_geophysics.py", "data/geophysical/**/*.GRD"], outputs = ["outputs/geophysics/rtf.tif", "outputs/geophysics/1vd.tif", "outputs/geophysics/as.tif", "outputs/geophysics/tdr.tif"] }
-training-table = { cmd = "python scripts/11_build_training_table.py", depends-on = ["features", "minfile"], inputs = ["scripts/11_build_training_table.py", "data/geochem_05_features.parquet", "data/minfile_bc_raw.parquet"], outputs = ["data/training_table.parquet"] }
-hex-grid = { cmd = "python scripts/12_build_hex_grid.py", depends-on = ["features", "minfile", "terrain", "dem", "geophysics"], inputs = ["scripts/12_build_hex_grid.py", "data/geochem_05_features.parquet", "data/minfile_bc_raw.parquet", "data/terrain_inventory_bc_raw.parquet", "data/BC_boundary.gpkg", "data/BC_digital_geology.gpkg", "data/BC_terranes.gpkg", "outputs/geomorphometry/*.tif", "outputs/geophysics/*.tif"], outputs = ["data/hex_grid.parquet", "data/minfile_h3.parquet"] }
-pipeline = { depends-on = ["visualise", "terrain", "dem", "geophysics", "training-table", "hex-grid"] }
+hex-grid = { cmd = "python scripts/11_build_hex_grid.py", depends-on = ["features", "minfile", "terrain", "dem", "geophysics"], inputs = ["scripts/11_build_hex_grid.py", "data/geochem_05_features.parquet", "data/minfile_bc_raw.parquet", "data/terrain_inventory_bc_raw.parquet", "data/BC_boundary.gpkg", "data/BC_digital_geology.gpkg", "data/BC_terranes.gpkg", "outputs/geomorphometry/*.tif", "outputs/geophysics/*.tif"], outputs = ["data/hex_grid.parquet", "data/minfile_h3.parquet"] }
+mlflow-ui = "mlflow server --backend-store-uri sqlite:///mlflow.db --host 127.0.0.1 --port 5000"
+pipeline = { depends-on = ["visualise", "terrain", "dem", "geophysics", "hex-grid"] }
 
 [activation.env]
 # Windows consoles default to cp1252, which can't print the ✓/— characters the stages log
@@ -48,6 +48,4 @@ font-ttf-roboto = ">=3.16,<4"
 xarray-spatial = ">=0.10.17,<0.11"
 scikit-learn = ">=1.9.1,<2"
 h3-py = ">=4.5.0,<5"
-
-[pypi-dependencies]
-mlflow = ">=1.27.0, <2"
+mlflow = ">=3.16.0,<4"

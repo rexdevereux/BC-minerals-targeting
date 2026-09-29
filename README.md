@@ -23,7 +23,7 @@ An end-to-end geoscience data engineering and exploration targeting pipeline bui
 
 ## Pipeline Architecture
 
-Twelve stages, each a pixi task. Each stage reads the previous stage's GeoParquet/GeoTIFF output and writes its own, so every stage is independently testable and re-runnable — and pixi skips any stage whose inputs haven't changed.
+Eleven stages, each a pixi task. Each stage reads the previous stage's GeoParquet/GeoTIFF output and writes its own, so every stage is independently testable and re-runnable — and pixi skips any stage whose inputs haven't changed.
 
 ```
 Geochemistry (BC RGS 2020)
@@ -40,11 +40,9 @@ Province-wide covariates & labels
 09_get_dem_geomorphometry→ outputs/geomorphometry/{dem,tpi,landforms}.tif (Copernicus DEM, 90 m)
 10_prep_geophysics       → outputs/geophysics/{rtf,1vd,as,tdr}.tif (magnetics + analytic signal + tilt derivative, 100 m)
 
-Training data
-11_build_training_table  → data/training_table.parquet          (point-based: geochem features + porphyry Cu-Au labels)
 
 Modelling table
-12_build_hex_grid        → data/hex_grid.parquet                (~184k H3 res-7 hexes: every layer summarised per hex + labels)
+11_build_hex_grid        → data/hex_grid.parquet                (~207k H3 res-7 hexes: every layer summarised per hex + labels)
 ```
 
 ---
@@ -140,7 +138,7 @@ Top 2% by score flagged as priority drill targets — **1,020 porphyry targets**
 ```
 critical-minerals-canada/
   scripts/                        # the pipeline — one numbered script per stage
-    01_ingest_geochem.py … 12_build_hex_grid.py
+    01_ingest_geochem.py … 11_build_hex_grid.py
   site_specific/                  # parked for later single-deposit models
     get_satellite_imagery.py      # Landsat alteration indices for one AOI
   notebooks/                      # exploration only, not part of the pipeline
@@ -171,10 +169,10 @@ Download the RGS 2020, bedrock geology, terrane, and BC boundary files (links ab
 pixi run pipeline
 ```
 
-Or any single stage (its upstream stages run first if needed): `ingest`, `standardise`, `validate`, `spatial`, `features`, `visualise`, `minfile`, `terrain`, `dem`, `geophysics`, `training-table`, `hex-grid`.
+Or any single stage (its upstream stages run first if needed): `ingest`, `standardise`, `validate`, `spatial`, `features`, `visualise`, `minfile`, `terrain`, `dem`, `geophysics`, `hex-grid`.
 
 ```bash
-pixi run training-table
+pixi run hex-grid
 ```
 
 The `dem` stage peaks at ~12 GB RAM.

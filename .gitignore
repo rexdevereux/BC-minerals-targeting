@@ -14,3 +14,7 @@ outputs/geophysics/
 *.log
 __pycache__/
 
+# mlflow tracking store (runs, metrics) and logged artifacts — local only
+mlflow.db
+mlartifacts/
+mlruns/
