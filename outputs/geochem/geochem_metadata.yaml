@@ -107,7 +107,7 @@ feature_groups:
   - score_battery
   - rank_battery
   - target_battery
-generated_at: '2026-09-29T00:53:12.791500+00:00'
+generated_at: '2026-09-29T01:57:59.642848+00:00'
 pipeline_version: 1.0.0
 porphyry_targets: 1020
 schema_version: '1.0'

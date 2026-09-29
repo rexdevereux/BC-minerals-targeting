@@ -23,7 +23,7 @@ An end-to-end geoscience data engineering and exploration targeting pipeline bui
 
 ## Pipeline Architecture
 
-Ten stages, each a pixi task. Each stage reads the previous stage's GeoParquet/GeoTIFF output and writes its own, so every stage is independently testable and re-runnable — and pixi skips any stage whose inputs haven't changed.
+Twelve stages, each a pixi task. Each stage reads the previous stage's GeoParquet/GeoTIFF output and writes its own, so every stage is independently testable and re-runnable — and pixi skips any stage whose inputs haven't changed.
 
 ```
 Geochemistry (BC RGS 2020)
@@ -38,9 +38,13 @@ Province-wide covariates & labels
 07_get_minfile           → data/minfile_bc_raw.parquet          (16,261 mineral occurrences)
 08_get_terrain_inventory → data/terrain_inventory_bc_raw.parquet (158,201 TIM landform polygons)
 09_get_dem_geomorphometry→ outputs/geomorphometry/{dem,tpi,landforms}.tif (Copernicus DEM, 90 m)
+10_prep_geophysics       → outputs/geophysics/{rtf,1vd,as,tdr}.tif (magnetics + analytic signal + tilt derivative, 100 m)
 
 Training data
-10_build_training_table  → data/training_table.parquet          (geochem features + porphyry Cu-Au labels)
+11_build_training_table  → data/training_table.parquet          (point-based: geochem features + porphyry Cu-Au labels)
+
+Modelling table
+12_build_hex_grid        → data/hex_grid.parquet                (~184k H3 res-7 hexes: every layer summarised per hex + labels)
 ```
 
 ---
@@ -56,6 +60,7 @@ Training data
 | BC MINFILE | BC Geological Survey (DataBC WFS) | 16,261 mineral occurrences with deposit type + commodity codes |
 | Terrain Inventory Mapping (TIM) | BC Ministry of Environment (DataBC WFS) | 158,201 surficial material / landform polygons, ~50% of BC |
 | Copernicus DEM GLO-90 | ESA via Microsoft Planetary Computer | 90 m elevation, basis for TPI and landform classification |
+| BC Aeromagnetic Compilation | GSC Open File 9222 / BCGS Open File 2024-08 | 100 m residual total field + first vertical derivative (manual download, Geosoft GRD) |
 
 All datasets are open government data released under the [BC Open Government Licence](https://www2.gov.bc.ca/gov/content/data/open-data/open-government-licence-bc).
 
@@ -135,7 +140,7 @@ Top 2% by score flagged as priority drill targets — **1,020 porphyry targets**
 ```
 critical-minerals-canada/
   scripts/                        # the pipeline — one numbered script per stage
-    01_ingest_geochem.py … 10_build_training_table.py
+    01_ingest_geochem.py … 12_build_hex_grid.py
   site_specific/                  # parked for later single-deposit models
     get_satellite_imagery.py      # Landsat alteration indices for one AOI
   notebooks/                      # exploration only, not part of the pipeline
@@ -143,6 +148,7 @@ critical-minerals-canada/
   outputs/
     geochem/                      # maps, charts, QA report, target GeoJSONs
     geomorphometry/               # DEM, TPI, landforms rasters (not tracked — 600 MB+ each)
+    geophysics/                   # magnetics RTF, 1VD, analytic signal, tilt derivative (not tracked)
     satellite/                    # site-specific alteration indices
   pixi.toml                       # environment + pipeline tasks
 ```
@@ -159,13 +165,13 @@ cd critical-minerals-canada
 pixi install
 ```
 
-Download the RGS 2020, bedrock geology, terrane, and BC boundary files (links above) into `data/`. MINFILE, TIM, and the DEM are fetched automatically. Then run the whole pipeline:
+Download the RGS 2020, bedrock geology, terrane, and BC boundary files (links above) into `data/`. MINFILE, TIM, and the DEM are fetched automatically. The aeromagnetic grids are a manual download from the [NRCan Geophysical Data portal](https://geophysical-data.canada.ca/Portal/) — choose **Geosoft GRD** (not TIF) for the BC Compilation 100 m residual total field and 1st vertical derivative, and unzip into `data/geophysical/`. Then run the whole pipeline:
 
 ```bash
 pixi run pipeline
 ```
 
-Or any single stage (its upstream stages run first if needed): `ingest`, `standardise`, `validate`, `spatial`, `features`, `visualise`, `minfile`, `terrain`, `dem`, `training-table`.
+Or any single stage (its upstream stages run first if needed): `ingest`, `standardise`, `validate`, `spatial`, `features`, `visualise`, `minfile`, `terrain`, `dem`, `geophysics`, `training-table`, `hex-grid`.
 
 ```bash
 pixi run training-table

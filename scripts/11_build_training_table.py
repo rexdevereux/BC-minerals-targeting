@@ -1,5 +1,5 @@
 """
-10_build_training_table.py
+11_build_training_table.py
 
 Joins province-wide geochemical features with MINFILE occurrence labels into a
 single training table for a regional (BC-wide) porphyry Cu-Au prospectivity
@@ -16,7 +16,7 @@ Label scheme (pseudo-absence sampling):
     background (0)— sample beyond EXCLUSION_RADIUS_M of every occurrence
 
 Usage:
-    pixi run python scripts/10_build_training_table.py
+    pixi run python scripts/11_build_training_table.py
 
 Outputs:
     data/training_table.parquet
