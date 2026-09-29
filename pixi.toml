@@ -20,6 +20,7 @@ hex-grid = { cmd = "python scripts/11_build_hex_grid.py", depends-on = ["feature
 mlflow-ui = "mlflow server --backend-store-uri sqlite:///mlflow.db --host 127.0.0.1 --port 5000 --workers 1"
 train = "python modelling/train.py"
 predict = "python modelling/predict.py"
+tune = "python modelling/tune.py"
 pipeline = { depends-on = ["visualise", "terrain", "dem", "geophysics", "hex-grid"] }
 
 [activation.env]
@@ -51,3 +52,4 @@ xarray-spatial = ">=0.10.17,<0.11"
 scikit-learn = ">=1.9.1,<2"
 h3-py = ">=4.5.0,<5"
 mlflow = ">=3.16.0,<4"
+optuna = ">=5.0.0,<6"

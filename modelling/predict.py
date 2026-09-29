@@ -18,12 +18,8 @@ Outputs:
 import argparse
 import json
 
-import matplotlib
-
-matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import mlflow
-import numpy as np
 import pandas as pd
 
 import common
@@ -59,18 +55,14 @@ predictions.to_file(gpkg_path, driver="GPKG")
 known = predictions[label_col] == 1
 top10 = predictions["percentile"] >= 90
 
-fig, ax = plt.subplots(figsize=(8, 8))
-points = ax.scatter(predictions["centroid_lon"], predictions["centroid_lat"], c=predictions["percentile"],
-                    cmap="magma", s=0.3, marker=",", linewidths=0)
-ax.scatter(predictions.loc[known, "centroid_lon"], predictions.loc[known, "centroid_lat"],
-           s=3, facecolors="none", edgecolors="cyan", linewidths=0.4, label="known deposits")
-fig.colorbar(points, ax=ax, shrink=0.6, label="prospectivity percentile")
-ax.set(title=f"{commodity} prospectivity — model run {model_run_id[:8]}", xlabel="longitude", ylabel="latitude")
-ax.set_aspect(1.6)
-ax.legend(loc="lower left")
-fig.tight_layout()
+fig = common.plot_prospectivity_map(predictions, predictions["percentile"].to_numpy(), known,
+                                   f"{commodity} prospectivity — model run {model_run.info.run_name}")
 
-with mlflow.start_run(experiment_id=model_run.info.experiment_id, run_name=f"predict-{commodity}-{model_run_id[:8]}"):
+with mlflow.start_run(
+    experiment_id=model_run.info.experiment_id,
+    run_name=f"predict-{commodity}-{model_run_id[:8]}",
+    tags={"mlflow.parentRunId": model_run_id},  # nests the prediction under its training run in the UI
+):
     tags, uncommitted_diff = common.provenance_tags(args.data)
     mlflow.set_tags(tags | {
         "stage": "predict",

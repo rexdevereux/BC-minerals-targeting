@@ -12,7 +12,8 @@ hexes have no geochem sample; those are filled from neighbouring hexes and
 flagged in `geochem_source`.
 
 Columns per hex:
-    raster covariates   {dem,tpi,rtf,1vd,as,tdr}_mean / _std
+    raster covariates   {elevation,topo_position,mag_field,mag_vertical_deriv,
+                         mag_analytic_signal,mag_tilt_deriv}_mean / _std
                         landform_{class}_frac — share of each Weiss landform class
                         mag_coverage — share of the hex with magnetic data
     neighbour context   {layer}_ring1_mean — mean over the hex and its 6 neighbours
@@ -51,6 +52,14 @@ H3_RES = 7
 CRS = "EPSG:3005"
 PORPHYRY_CUAU_CODES = {"L03", "L04"}
 BOUNDARY_SIMPLIFY_M = 200
+COLUMN_PREFIX = {  # raster file stem -> hex_grid column prefix
+    "dem": "elevation",
+    "tpi": "topo_position",
+    "rtf": "mag_field",
+    "1vd": "mag_vertical_deriv",
+    "as": "mag_analytic_signal",
+    "tdr": "mag_tilt_deriv",
+}
 LANDFORM_CLASSES = {
     1: "canyon", 2: "midslope_drainage", 3: "upland_drainage", 4: "u_valley", 5: "plain",
     6: "open_slope", 7: "upper_slope", 8: "local_ridge", 9: "midslope_ridge", 10: "mountain_top",
@@ -152,7 +161,7 @@ def add_mean_std(name, values, zones):
 logger.info("zonal stats on the DEM grid (dem, tpi, landforms)...")
 zones, grid_key = zones_for(geomorph_dir / "dem.tif")
 for name in ["dem", "tpi"]:
-    add_mean_std(name, read_on_grid(geomorph_dir / f"{name}.tif", grid_key), zones)
+    add_mean_std(COLUMN_PREFIX[name], read_on_grid(geomorph_dir / f"{name}.tif", grid_key), zones)
 landforms = read_on_grid(geomorph_dir / "landforms.tif", grid_key)
 valid = np.isfinite(landforms) & (zones > 0)
 z, cls = zones[valid], landforms[valid]
@@ -166,7 +175,7 @@ logger.info("zonal stats on the magnetics grid (rtf, 1vd, as, tdr)...")
 zones, grid_key = zones_for(geophys_dir / "rtf.tif")
 pixels_per_hex = np.bincount(zones.ravel(), minlength=n + 1)[1:]
 valid_counts = {
-    name: add_mean_std(name, read_on_grid(geophys_dir / f"{name}.tif", grid_key), zones)
+    name: add_mean_std(COLUMN_PREFIX[name], read_on_grid(geophys_dir / f"{name}.tif", grid_key), zones)
     for name in ["rtf", "1vd", "as", "tdr"]
 }
 with np.errstate(invalid="ignore", divide="ignore"):
@@ -174,8 +183,8 @@ with np.errstate(invalid="ignore", divide="ignore"):
 del zones
 
 logger.info("neighbour-ring means...")
-for name in ["dem", "tpi", "rtf", "1vd", "as", "tdr"]:
-    hexes[f"{name}_ring1_mean"] = nanmean_rows(disk_values(hexes[f"{name}_mean"].to_numpy(), ring1))
+for prefix in COLUMN_PREFIX.values():
+    hexes[f"{prefix}_ring1_mean"] = nanmean_rows(disk_values(hexes[f"{prefix}_mean"].to_numpy(), ring1))
 
 
 # --- geology, terranes, structure at hex centres ---

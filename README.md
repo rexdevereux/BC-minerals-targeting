@@ -188,7 +188,11 @@ pixi run mlflow-ui                                      # leave running; UI at h
 pixi run train                                          # configs/porphyry_cuau.yaml
 pixi run train --config configs/<variant>.yaml
 pixi run predict --model-uri runs:/<run_id>/model       # or models:/porphyry_cuau_prospectivity/<version>
+pixi run tune                                          # Optuna search → writes configs/porphyry_cuau_tuned.yaml
+pixi run train --config configs/porphyry_cuau_tuned.yaml
 ```
+
+**Tuning** (`configs/porphyry_cuau_tuning.yaml`) scores every Optuna trial with the same spatial-CV folds as training, on the training blocks only, so the held-out test blocks stay unseen until the final `train` run. Each trial is a nested MLflow run under one tuning parent run.
 
 **Evaluation is spatial.** Hexes are grouped into H3 resolution-4 blocks (~45 km) and whole blocks are held out, stratified so the test set contains deposits. A random hex split would leak through neighbour features and shared mineral districts. Metrics: PR-AUC (primary — ~1% positives), ROC-AUC, and the share of known deposits captured in the top 1/5/10/20% of area, each compared against the rule-based `score_porphyry_max`.
 

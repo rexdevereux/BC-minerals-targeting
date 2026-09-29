@@ -1,11 +1,12 @@
 # Porphyry Cu-Au prospectivity — gradient-boosting baseline on the H3 hex grid.
 # Every value here is logged to MLflow with the run. Copy this file to try a variation:
 #   pixi run train --config configs/<your_variant>.yaml
+# Variant of porphyry_cuau.yaml: larger spatial blocks (H3 res 3) for a stricter held-out test.
 
 mlflow:
   tracking_uri: http://127.0.0.1:5000   # start the server first: pixi run mlflow-ui
   experiment: bc-prospectivity
-  run_name: porphyry-hgb-res4
+  run_name: porphyry-hgb-res3
 
 target:
   commodity: porphyry_cuau
@@ -30,7 +31,7 @@ features:
     - rock_type               # 267 classes, too granular; rock_class carries the signal
 
 split:
-  block_h3_resolution: 4      # ~1,770 km² blocks (~45 km across), much wider than the ~5 km neighbour features
+  block_h3_resolution: 3      # ~12,400 km² blocks (~110 km across) — keeps whole mineral districts together
   test_fraction: 0.2          # share of blocks held out, stratified so the test set contains deposits
   cv_folds: 5                 # spatial CV folds within the training blocks
   seed: 42
