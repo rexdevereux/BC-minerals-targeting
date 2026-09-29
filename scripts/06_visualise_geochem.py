@@ -9,9 +9,10 @@ from pathlib import Path
 from loguru import logger
 
 # --- paths ---
-data_dir   = Path("data")
-output_dir = Path("outputs")
-output_dir.mkdir(exist_ok=True)
+root_dir   = Path(__file__).resolve().parents[1]
+data_dir   = root_dir / "data"
+output_dir = root_dir / "outputs" / "geochem"
+output_dir.mkdir(parents=True, exist_ok=True)
 
 in_path    = data_dir / "geochem_05_features.parquet"
 font_path  = data_dir / "Inter" / "Inter-VariableFont_opsz,wght.ttf"

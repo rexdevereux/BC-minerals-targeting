@@ -1,21 +1,22 @@
 """
-07_get_satellite_imagery.py
+get_satellite_imagery.py
 
-Downloads Landsat 8/9 scenes covering an AOI via Microsoft Planetary Computer STAC,
-builds a median composite over a summer window, and computes porphyry-relevant
+Site-specific (not part of the province-wide pipeline): downloads Landsat 8/9
+scenes covering a single AOI via Microsoft Planetary Computer STAC, builds a
+median composite over a summer window, and computes porphyry-relevant
 alteration indices. Outputs GeoTIFFs ready for QGIS and a PNG overview plot.
 
 Usage:
-    pixi run python scripts/07_get_satellite_imagery.py
+    pixi run python site_specific/get_satellite_imagery.py
 
 Outputs:
     data/composite.zarr               raw band composite (reload without redownloading)
-    outputs/indices/ndvi.tif
-    outputs/indices/ndwi.tif
-    outputs/indices/clay_ratio.tif
-    outputs/indices/iron_oxide_ratio.tif
-    outputs/indices/ferrous_ratio.tif
-    outputs/porphyry_indices.png
+    outputs/satellite/ndvi.tif
+    outputs/satellite/ndwi.tif
+    outputs/satellite/clay_ratio.tif
+    outputs/satellite/iron_oxide_ratio.tif
+    outputs/satellite/ferrous_ratio.tif
+    outputs/satellite/porphyry_indices.png
 """
 
 from pathlib import Path
@@ -31,7 +32,9 @@ import xarray as xr
 
 # ── config ────────────────────────────────────────────────────────────────────
 
-aoi_path        = Path('data/stikinia_aoi_2.gpkg')     # path to your AOI file
+root_dir        = Path(__file__).resolve().parents[1]
+# does NOT cover Red Chris — it's ~110 km east; swap in an AOI for the chosen site
+aoi_path        = root_dir / 'data' / 'stikinia_aoi_2.gpkg'
 date_range      = '2019-07-01/2023-09-30'   # summer window across multiple years
 cloud_cover_max = 20                         # percent
 resolution      = 30                         # metres
@@ -39,8 +42,8 @@ ndvi_threshold  = 0.3                        # mask pixels above (vegetation)
 ndwi_threshold  = 0.0                        # mask pixels above (water)
 max_aoi_km2     = 5000                       # hard limit — increase resolution if larger
 
-output_dir  = Path('outputs/indices')
-zarr_path   = Path('data/composite.zarr')
+output_dir  = root_dir / 'outputs' / 'satellite'
+zarr_path   = root_dir / 'data' / 'composite.zarr'
 output_dir.mkdir(parents=True, exist_ok=True)
 
 # ── load aoi ─────────────────────────────────────────────────────────────────
@@ -223,7 +226,7 @@ plot_band(axes[1, 1], iron_oxide_m,'Iron Oxide Ratio\n(hematite/goethite)', cmap
 plot_band(axes[1, 2], ferrous_m,   'Ferrous Ratio\n(chlorite/amphibole)', cmap='YlOrBr', vmin=0.3, vmax=1.2)
 
 plt.tight_layout()
-plot_path = Path('outputs/porphyry_indices.png')
+plot_path = output_dir / 'porphyry_indices.png'
 plt.savefig(plot_path, dpi=150, bbox_inches='tight')
 plt.show()
 print(f'saved {plot_path}')

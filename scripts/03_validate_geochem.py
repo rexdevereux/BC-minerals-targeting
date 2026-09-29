@@ -7,13 +7,14 @@ from datetime import datetime, timezone
 from loguru import logger
 
 # --- paths ---
-data_dir   = Path("data")
-output_dir = Path("outputs")
-output_dir.mkdir(exist_ok=True)
+root_dir   = Path(__file__).resolve().parents[1]
+data_dir   = root_dir / "data"
+output_dir = root_dir / "outputs" / "geochem"
+output_dir.mkdir(parents=True, exist_ok=True)
 
 in_path      = data_dir / "geochem_02_standardised.parquet"
 out_parquet  = data_dir / "geochem_03_validated.parquet"
-out_geojson  = output_dir / "bc_geochem_samples.geojson"
+out_geojson  = data_dir / "bc_geochem_samples.geojson"  # 30MB QGIS export — kept out of git
 out_report   = output_dir / "geochem_validation_report.json"
 
 # --- load ---

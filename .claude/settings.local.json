@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pixi run *)",
+      "Bash(python3 -c ' *)"
+    ]
+  }
+}

@@ -5,6 +5,18 @@ platforms = ["win-64", "linux-64"]
 version = "0.1.0"
 
 [tasks]
+# each stage declares inputs/outputs, so pixi skips it when nothing it reads has changed
+ingest = { cmd = "python scripts/01_ingest_geochem.py", inputs = ["scripts/01_ingest_geochem.py", "data/rgs2020_data.csv"], outputs = ["data/geochem_01_raw.parquet"] }
+standardise = { cmd = "python scripts/02_standardise_geochem.py", depends-on = ["ingest"], inputs = ["scripts/02_standardise_geochem.py", "data/geochem_01_raw.parquet"], outputs = ["data/geochem_02_standardised.parquet"] }
+validate = { cmd = "python scripts/03_validate_geochem.py", depends-on = ["standardise"], inputs = ["scripts/03_validate_geochem.py", "data/geochem_02_standardised.parquet"], outputs = ["data/geochem_03_validated.parquet", "outputs/geochem/geochem_validation_report.json"] }
+spatial = { cmd = "python scripts/04_spatial_geochem.py", depends-on = ["validate"], inputs = ["scripts/04_spatial_geochem.py", "data/geochem_03_validated.parquet", "data/BC_digital_geology.gpkg", "data/BC_terranes.gpkg"], outputs = ["data/geochem_04_spatial.parquet"] }
+features = { cmd = "python scripts/05_features_geochem.py", depends-on = ["spatial"], inputs = ["scripts/05_features_geochem.py", "data/geochem_04_spatial.parquet"], outputs = ["data/geochem_05_features.parquet", "outputs/geochem/geochem_metadata.yaml"] }
+visualise = { cmd = "python scripts/06_visualise_geochem.py", depends-on = ["features"], inputs = ["scripts/06_visualise_geochem.py", "data/geochem_05_features.parquet"], outputs = ["outputs/geochem/*.png"] }
+minfile = { cmd = "python scripts/07_get_minfile.py", inputs = ["scripts/07_get_minfile.py"], outputs = ["data/minfile_bc_raw.parquet"] }
+terrain = { cmd = "python scripts/08_get_terrain_inventory.py", inputs = ["scripts/08_get_terrain_inventory.py"], outputs = ["data/terrain_inventory_bc_raw.parquet"] }
+dem = { cmd = "python scripts/09_get_dem_geomorphometry.py", inputs = ["scripts/09_get_dem_geomorphometry.py", "data/BC_boundary.gpkg"], outputs = ["outputs/geomorphometry/dem.tif", "outputs/geomorphometry/tpi.tif", "outputs/geomorphometry/landforms.tif"] }
+training-table = { cmd = "python scripts/10_build_training_table.py", depends-on = ["features", "minfile"], inputs = ["scripts/10_build_training_table.py", "data/geochem_05_features.parquet", "data/minfile_bc_raw.parquet"], outputs = ["data/training_table.parquet"] }
+pipeline = { depends-on = ["visualise", "terrain", "dem", "training-table"] }
 
 [dependencies]
 geopandas = ">=1.1.3,<2"
@@ -27,6 +39,7 @@ rioxarray = ">=0.22.0,<0.23"
 rich = ">=15.0.0,<16"
 plotnine = ">=0.15.8,<0.16"
 font-ttf-roboto = ">=3.16,<4"
+xarray-spatial = ">=0.10.17,<0.11"
 
 [pypi-dependencies]
 mlflow = ">=1.27.0, <2"

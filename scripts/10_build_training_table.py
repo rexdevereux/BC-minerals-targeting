@@ -1,5 +1,5 @@
 """
-02_build_training_table.py
+10_build_training_table.py
 
 Joins province-wide geochemical features with MINFILE occurrence labels into a
 single training table for a regional (BC-wide) porphyry Cu-Au prospectivity
@@ -16,10 +16,10 @@ Label scheme (pseudo-absence sampling):
     background (0)— sample beyond EXCLUSION_RADIUS_M of every occurrence
 
 Usage:
-    pixi run python targeting_research/scripts/02_build_training_table.py
+    pixi run python scripts/10_build_training_table.py
 
 Outputs:
-    targeting_research/data/training_table.parquet
+    data/training_table.parquet
 """
 
 from pathlib import Path
@@ -36,10 +36,11 @@ EXCLUSION_RADIUS_M = 5_000
 # Porphyry Cu-Au deposit type codes (Red Chris is coded L04 primary, L03 secondary)
 PORPHYRY_CUAU_CODES = {"L03", "L04"}
 
-root_dir = Path(__file__).resolve().parent.parent.parent
-geochem_path = root_dir / "data" / "geochem_05_features.parquet"
-minfile_path = root_dir / "targeting_research" / "data" / "minfile_bc_raw.parquet"
-out_path = root_dir / "targeting_research" / "data" / "training_table.parquet"
+root_dir = Path(__file__).resolve().parents[1]
+data_dir = root_dir / "data"
+geochem_path = data_dir / "geochem_05_features.parquet"
+minfile_path = data_dir / "minfile_bc_raw.parquet"
+out_path = data_dir / "training_table.parquet"
 
 # --- load ---
 logger.info("loading geochem features (province-wide)...")

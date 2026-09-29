@@ -6,7 +6,8 @@ from datetime import datetime, timezone
 from loguru import logger
 
 # --- paths ---
-data_dir = Path("data")
+root_dir = Path(__file__).resolve().parents[1]
+data_dir = root_dir / "data"
 in_path  = data_dir / "geochem_01_raw.parquet"
 out_path = data_dir / "geochem_02_standardised.parquet"
 

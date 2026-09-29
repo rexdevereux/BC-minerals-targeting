@@ -7,10 +7,13 @@ from datetime import datetime, timezone
 from loguru import logger
 
 # --- paths ---
-data_dir  = Path("data")
-in_path   = data_dir / "geochem_04_spatial.parquet"
-out_path  = data_dir / "geochem_05_features.parquet"
-meta_path = Path("outputs") / "geochem_metadata.yaml"
+root_dir   = Path(__file__).resolve().parents[1]
+data_dir   = root_dir / "data"
+output_dir = root_dir / "outputs" / "geochem"
+output_dir.mkdir(parents=True, exist_ok=True)
+in_path    = data_dir / "geochem_04_spatial.parquet"
+out_path   = data_dir / "geochem_05_features.parquet"
+meta_path  = output_dir / "geochem_metadata.yaml"
 
 # --- load ---
 logger.info(f"loading {in_path}...")
@@ -264,8 +267,8 @@ export_cols_battery = [
 export_cols_porphyry = [c for c in export_cols_porphyry if c in porphyry_targets.columns]
 export_cols_battery  = [c for c in export_cols_battery  if c in battery_targets.columns]
 
-porphyry_out = Path("outputs") / "targets_porphyry.geojson"
-battery_out  = Path("outputs") / "targets_battery.geojson"
+porphyry_out = output_dir / "targets_porphyry.geojson"
+battery_out  = output_dir / "targets_battery.geojson"
 
 porphyry_targets[export_cols_porphyry].to_file(porphyry_out, driver="GeoJSON")
 battery_targets[export_cols_battery].to_file(battery_out, driver="GeoJSON")

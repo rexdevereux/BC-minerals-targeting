@@ -1,6 +1,6 @@
 # BC Critical Minerals Drill Targeting Pipeline
 
-An end-to-end geoscience data engineering and exploration targeting pipeline built on provincial geochemical data from British Columbia. The pipeline ingests 50,990 stream sediment samples from the BC Regional Geochemical Survey (RGS 2020), transforms them through six stages into ML-ready features, and produces ranked drill targets for two deposit types: porphyry Cu-Au-Mo systems and battery metals (Li-Co-Ni).
+An end-to-end geoscience data engineering and exploration targeting pipeline built on provincial geochemical data from British Columbia. The pipeline ingests 50,990 stream sediment samples from the BC Regional Geochemical Survey (RGS 2020), transforms them into ML-ready features, joins province-wide mineral occurrence labels, landform and terrain covariates, and produces ranked drill targets for two deposit types: porphyry Cu-Au-Mo systems and battery metals (Li-Co-Ni).
 
 
 ---
@@ -8,37 +8,39 @@ An end-to-end geoscience data engineering and exploration targeting pipeline bui
 ## Results
 
 ### Porphyry Cu-Au-Mo Targets
-![Porphyry targeting map](outputs/03_porphyry_targets.png)
+![Porphyry targeting map](outputs/geochem/03_porphyry_targets.png)
 
 ### Battery Metals Targets (Li-Co-Ni)
-![Battery metals targeting map](outputs/04_battery_targets.png)
+![Battery metals targeting map](outputs/geochem/04_battery_targets.png)
 
 ### Element Distributions
-![Element distributions](outputs/01_element_distributions.png)
+![Element distributions](outputs/geochem/01_element_distributions.png)
 
 ### Correlation Analysis
-![Correlation heatmap](outputs/05_correlation_heatmap.png)
+![Correlation heatmap](outputs/geochem/05_correlation_heatmap.png)
 
 ---
 
 ## Pipeline Architecture
 
-The pipeline follows a linear 6-stage architecture. Each stage reads from the previous stage's GeoParquet output and writes its own. Each stage is independently testable and re-runnable.
+Ten stages, each a pixi task. Each stage reads the previous stage's GeoParquet/GeoTIFF output and writes its own, so every stage is independently testable and re-runnable — and pixi skips any stage whose inputs haven't changed.
 
 ```
-BC RGS 2020 Excel
-       ↓
-01_ingest          → geochem_01_raw.parquet         (65,008 rows)
-       ↓
-02_standardise     → geochem_02_standardised.parquet (50,988 rows, stream sediment only)
-       ↓
-03_validate        → geochem_03_validated.parquet    (10/10 QA checks passing)
-       ↓
-04_spatial         → geochem_04_spatial.parquet      (geology, terranes, fault distances)
-       ↓
-05_features        → geochem_05_features.parquet     (127 columns, 2 targeting scores)
-       ↓
-06_visualise       → outputs/*.png                   (5 maps and charts)
+Geochemistry (BC RGS 2020)
+01_ingest_geochem        → data/geochem_01_raw.parquet          (65,008 rows)
+02_standardise_geochem   → data/geochem_02_standardised.parquet (50,988 rows, stream sediment only)
+03_validate_geochem      → data/geochem_03_validated.parquet    (10/10 QA checks passing)
+04_spatial_geochem       → data/geochem_04_spatial.parquet      (geology, terranes, fault distances)
+05_features_geochem      → data/geochem_05_features.parquet     (127 columns, 2 rule-based scores)
+06_visualise_geochem     → outputs/geochem/*.png                (5 maps and charts)
+
+Province-wide covariates & labels
+07_get_minfile           → data/minfile_bc_raw.parquet          (16,261 mineral occurrences)
+08_get_terrain_inventory → data/terrain_inventory_bc_raw.parquet (158,201 TIM landform polygons)
+09_get_dem_geomorphometry→ outputs/geomorphometry/{dem,tpi,landforms}.tif (Copernicus DEM, 90 m)
+
+Training data
+10_build_training_table  → data/training_table.parquet          (geochem features + porphyry Cu-Au labels)
 ```
 
 ---
@@ -51,6 +53,9 @@ BC RGS 2020 Excel
 | BC Bedrock Geology | BCGS Digital Geology 2019 | 35,424 bedrock polygons, rock class + terrane |
 | BC Faults | BCGS Digital Geology 2019 | 57,279 fault features |
 | BC Terranes | BCGS / YGS Colpron & Nelson 2013 | 180 terrane polygons, Cordilleran orogen |
+| BC MINFILE | BC Geological Survey (DataBC WFS) | 16,261 mineral occurrences with deposit type + commodity codes |
+| Terrain Inventory Mapping (TIM) | BC Ministry of Environment (DataBC WFS) | 158,201 surficial material / landform polygons, ~50% of BC |
+| Copernicus DEM GLO-90 | ESA via Microsoft Planetary Computer | 90 m elevation, basis for TPI and landform classification |
 
 All datasets are open government data released under the [BC Open Government Licence](https://www2.gov.bc.ca/gov/content/data/open-data/open-government-licence-bc).
 
@@ -129,33 +134,17 @@ Top 2% by score flagged as priority drill targets — **1,020 porphyry targets**
 
 ```
 critical-minerals-canada/
-  scripts/
-    01_ingest_geochemical.py
-    02_standardise_geochemical.py
-    03_geochemical_validation.py
-    04_geochemical_spatial.py
-    05_geochemical_features.py
-    06_geochemical_visualisation.py
-  data/
-    rgs2020_data.csv              # BC RGS 2020 (not tracked in git)
-    BC_digital_geology.gpkg       # not tracked in git
-    BC_terranes.gpkg              # not tracked in git
-    BC_boundary.gpkg              # not tracked in git
-    geochem_01_raw.parquet        # not tracked in git
-    geochem_02_standardised.parquet
-    geochem_03_validated.parquet
-    geochem_04_spatial.parquet
-    geochem_05_features.parquet
+  scripts/                        # the pipeline — one numbered script per stage
+    01_ingest_geochem.py … 10_build_training_table.py
+  site_specific/                  # parked for later single-deposit models
+    get_satellite_imagery.py      # Landsat alteration indices for one AOI
+  notebooks/                      # exploration only, not part of the pipeline
+  data/                           # all inputs + intermediate parquet (not tracked in git)
   outputs/
-    01_element_distributions.png
-    02_copper_anomaly_map.png
-    03_porphyry_targets.png
-    04_battery_targets.png
-    05_correlation_heatmap.png
-    geochem_validation_report.json
-    geochem_metadata.yaml
-  pixi.toml
-  README.md
+    geochem/                      # maps, charts, QA report, target GeoJSONs
+    geomorphometry/               # DEM, TPI, landforms rasters (not tracked — 600 MB+ each)
+    satellite/                    # site-specific alteration indices
+  pixi.toml                       # environment + pipeline tasks
 ```
 
 ---
@@ -170,16 +159,19 @@ cd critical-minerals-canada
 pixi install
 ```
 
-Download the source data (links above) and place in `data/`. Then run each stage in order:
+Download the RGS 2020, bedrock geology, terrane, and BC boundary files (links above) into `data/`. MINFILE, TIM, and the DEM are fetched automatically. Then run the whole pipeline:
 
 ```bash
-pixi run python scripts/01_ingest_geochemical.py
-pixi run python scripts/02_standardise_geochemical.py
-pixi run python scripts/03_geochemical_validation.py
-pixi run python scripts/04_geochemical_spatial.py
-pixi run python scripts/05_geochemical_features.py
-pixi run python scripts/06_geochemical_visualisation.py
+pixi run pipeline
 ```
+
+Or any single stage (its upstream stages run first if needed): `ingest`, `standardise`, `validate`, `spatial`, `features`, `visualise`, `minfile`, `terrain`, `dem`, `training-table`.
+
+```bash
+pixi run training-table
+```
+
+The `dem` stage peaks at ~12 GB RAM.
 
 ---
 

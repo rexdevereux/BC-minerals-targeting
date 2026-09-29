@@ -5,7 +5,8 @@ from pathlib import Path
 from loguru import logger
 
 # --- paths ---
-data_dir = Path("data")
+root_dir = Path(__file__).resolve().parents[1]
+data_dir = root_dir / "data"
 raw_path  = data_dir / "rgs2020_data.csv"
 out_path  = data_dir / "geochem_01_raw.parquet"
 

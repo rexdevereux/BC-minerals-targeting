@@ -2,5 +2,14 @@
 .pixi/*
 !.pixi/config.toml
 
-# data files 
+# data files
 data/
+
+# province-wide rasters are 600MB+ each — over GitHub's 100MB file limit
+outputs/geomorphometry/
+
+# jupyter / run logs
+.ipynb_checkpoints/
+*.log
+__pycache__/
+
