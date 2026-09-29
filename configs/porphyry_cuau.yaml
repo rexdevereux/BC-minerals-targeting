@@ -1,0 +1,51 @@
+# Porphyry Cu-Au prospectivity — gradient-boosting baseline on the H3 hex grid.
+# Every value here is logged to MLflow with the run. Copy this file to try a variation:
+#   pixi run train --config configs/<your_variant>.yaml
+
+mlflow:
+  tracking_uri: http://127.0.0.1:5000   # start the server first: pixi run mlflow-ui
+  experiment: bc-prospectivity
+  run_name: porphyry-hgb-baseline
+
+target:
+  commodity: porphyry_cuau
+  label_column: label_porphyry          # 1 = porphyry occurrence in hex, 0 = no occurrence within ~5 km, NaN = excluded
+  deposit_type_codes: [L03, L04]        # MINFILE codes behind the label (set in scripts/11_build_hex_grid.py)
+  baseline_score: score_porphyry_max    # rule-based score the model has to beat
+
+data:
+  path: data/hex_grid.parquet
+
+features:
+  # every hex_grid column is a feature except these
+  exclude:
+    - h3_cell
+    - label_porphyry          # the target
+    - n_minfile               # label leakage: counts known occurrences
+    - n_porphyry_cuau         # label leakage
+    - score_porphyry_max      # held out as the baseline
+    - centroid_lat            # raw location lets the model memorise geography
+    - centroid_lon
+    - n_geochem_samples       # sampling density tracks exploration effort, not geology
+    - rock_type               # 267 classes, too granular; rock_class carries the signal
+
+split:
+  block_h3_resolution: 4      # ~1,770 km² blocks (~45 km across), much wider than the ~5 km neighbour features
+  test_fraction: 0.2          # share of blocks held out, stratified so the test set contains deposits
+  cv_folds: 5                 # spatial CV folds within the training blocks
+  seed: 42
+
+model:
+  type: hist_gradient_boosting
+  params:
+    learning_rate: 0.05
+    max_iter: 300
+    max_leaf_nodes: 31
+    min_samples_leaf: 50
+    l2_regularization: 1.0
+    class_weight: balanced    # ~1% of labelled hexes are positive
+    early_stopping: false     # its internal validation split is random, not spatial, so it would leak
+
+evaluation:
+  capture_area_pct: [1, 5, 10, 20]
+  permutation_repeats: 3

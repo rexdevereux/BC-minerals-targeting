@@ -8,6 +8,7 @@ data/
 # province-wide rasters are 600MB+ each — over GitHub's 100MB file limit
 outputs/geomorphometry/
 outputs/geophysics/
+outputs/predictions/
 
 # jupyter / run logs
 .ipynb_checkpoints/

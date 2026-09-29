@@ -179,6 +179,23 @@ The `dem` stage peaks at ~12 GB RAM.
 
 ---
 
+## Modelling
+
+Training and prediction are tracked in MLflow. Settings live in `configs/`; copy a config to try a variation.
+
+```bash
+pixi run mlflow-ui                                      # leave running; UI at http://127.0.0.1:5000
+pixi run train                                          # configs/porphyry_cuau.yaml
+pixi run train --config configs/<variant>.yaml
+pixi run predict --model-uri runs:/<run_id>/model       # or models:/porphyry_cuau_prospectivity/<version>
+```
+
+**Evaluation is spatial.** Hexes are grouped into H3 resolution-4 blocks (~45 km) and whole blocks are held out, stratified so the test set contains deposits. A random hex split would leak through neighbour features and shared mineral districts. Metrics: PR-AUC (primary — ~1% positives), ROC-AUC, and the share of known deposits captured in the top 1/5/10/20% of area, each compared against the rule-based `score_porphyry_max`.
+
+**Every run logs** the config, resolved feature list, git commit (plus the uncommitted diff if any), data and lockfile hashes, spatial-CV and test metrics, capture curve, split map, permutation importance, and the model (registered as `<commodity>_prospectivity`). Prediction runs are tagged with the model run they used and write a QGIS layer to `outputs/predictions/`.
+
+---
+
 ## Next Steps
 
 The current pipeline produces a rule-based composite score — a weighted sum of element z-scores designed from literature review. The natural next step is replacing this with a supervised ML model:
